@@ -11,11 +11,12 @@ from Case import Case
 
 def main():
     jeu=Echiquier()
-    i=0
-    while i<64:
-        case=Case()
-        jeu.addCase(case)
-        i=i+1
+    jeu.creationJeu()
+#    i=0
+#    while i<64:
+#        case=Case(i)
+#        jeu.addCase(case)
+#        i=i+1
     
     
     
