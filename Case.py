@@ -2,6 +2,8 @@
 
 class Case:
     
+    
+    
     #constructeur
     def __init__(self,ligne,colonne,couleur,rect) :
         self.piece=None

@@ -1,5 +1,6 @@
 import Pygame #importation du module Pygame
 
+
 class Pieces: #definition de la classe Pieces 
               #comprend les attributs et les méthodes des pièces d’échecs
     
