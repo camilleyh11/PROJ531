@@ -2,11 +2,14 @@
 import pygame
 from Case import Case
 from Piece import Piece
+from Jeu import Jeu
+#from deplacement_des_pieces import Pieces
 
 class Echiquier:
     
     # Constructeur
     def __init__(self) :
+        self.MoteurJeu=Jeu()
         self.initPygame()
         self.jeu=[]
         self.caseLongueur=75
@@ -62,7 +65,7 @@ class Echiquier:
                 
         
     def creationPieces(self):
-        
+
         #creation des pieces blanches
         
         #creation Roi Blanc
@@ -88,9 +91,9 @@ class Echiquier:
             self.jeu[7][i].setPiece(cavalierBlanc)
         
         #creation Pion Blanc
-        for i in range(0,8):  
+        for i in range(0,8):
             pionBlanc=Piece('Blanc','Pion',(5*self.caseLongueur,0*self.caseLargeur,
-                                        self.caseLongueur,self.caseLargeur))
+                                        self.caseLongueur,self.caseLargeur),i,False)
             
             self.jeu[6][i].setPiece(pionBlanc)
             
@@ -129,7 +132,7 @@ class Echiquier:
         #creation Pion Noir
         for i in range(0,8):  
             pionNoir=Piece('Noir','Pion',(5*self.caseLongueur,1*self.caseLargeur,
-                                        self.caseLongueur,self.caseLargeur))
+                                        self.caseLongueur,self.caseLargeur),i,False)
             
             self.jeu[1][i].setPiece(pionNoir)
             
@@ -189,15 +192,20 @@ class Echiquier:
     def mouseButtonDown(self,coord):
         self.caseDepart=self.getCase(coord)
         self.deplacement=coord
+        
 
         
     def mouseButtonUp(self,coord):
         self.caseArrivee=self.getCase(coord)
+        self.deplacementPiece()
         self.caseDepart=None
+        
 
         
     def mouseMotion(self,coord):
         self.deplacement=coord
+        
+    
        
     
     #Renvoie la case correspondant à la position en pixel ou renvoie null si
@@ -215,14 +223,117 @@ class Echiquier:
                     return case
         return None
                     
-                
-                    
+        
+        
+    def deplacementPiece(self):
+        
+        if self.caseDepart!=None and self.caseDepart.piece!=None:
+            pieceD= self.caseDepart.piece
+            if self.caseArrivee!=None and (self.caseArrivee.piece== None or self.caseArrivee.piece.couleur!=pieceD.couleur)and self.verifObstacle(pieceD.nom):
+                if pieceD.nom=='Tour':
+                    if self.MoteurJeu.deplacement_tour(self.caseArrivee,self.caseDepart):
+                        self.caseDepart.setPiece()
+                        self.caseArrivee.setPiece(pieceD)
+                if pieceD.nom=='Fou':
+                    if self.MoteurJeu.deplacement_fou(self.caseArrivee,self.caseDepart):
+                        self.caseDepart.setPiece()
+                        self.caseArrivee.setPiece(pieceD)
+                if pieceD.nom=='Reine':
+                    if self.MoteurJeu.deplacement_reine(self.caseArrivee,self.caseDepart):
+                        self.caseDepart.setPiece()
+                        self.caseArrivee.setPiece(pieceD)
+                        
+                if pieceD.nom=='Roi':
+                    if self.MoteurJeu.deplacement_roi(self.caseArrivee,self.caseDepart):
+                        self.caseDepart.setPiece()
+                        self.caseArrivee.setPiece(pieceD)
+                        
+                if pieceD.nom=='Cavalier':
+                    if self.MoteurJeu.deplacement_cavalier(self.caseArrivee,self.caseDepart):
+                        self.caseDepart.setPiece()
+                        self.caseArrivee.setPiece(pieceD)
+                        
+                if pieceD.nom =='Pion' and self.verifObstacle(pieceD.nom,pieceD.couleur) :
+                    if self.MoteurJeu.deplacement_pion(self.caseArrivee,self.caseDepart,self.caseDepart.piece.couleur):
+                        self.caseDepart.setPiece()
+                        self.caseArrivee.setPiece(pieceD)
             
-    
-    
-    
-    
-    
+            
+    def verifObstacle(self,nom,couleur=None):
+        if nom=='Tour':
+            return self.verifObstacleTour()
+        if nom=='Fou':
+            return self.verifObstacleFou()
+        if nom=='Reine' or nom=='Roi':
+            if self.caseArrivee.ligne==self.caseDepart.ligne or self.caseArrivee.colonne==self.caseDepart.colonne:
+                return self.verifObstacleTour()
+            else:
+                return self.verifObstacleFou()
+        if nom=='Pion' and couleur=='Blanc': 
+            if self.caseArrivee.colonne==self.caseDepart.colonne:
+                for i in range(self.caseArrivee.ligne,self.caseDepart.ligne,1):
+                    if self.jeu[i][self.caseDepart.colonne].piece!=None:
+                                return False
+        if nom=='Pion' and couleur=='Noir': 
+            if self.caseArrivee.colonne==self.caseDepart.colonne:
+                for i in range(self.caseDepart.ligne+1,self.caseArrivee.ligne+1,1):
+                    if self.jeu[i][self.caseDepart.colonne].piece!=None:
+                                return False
+        return True
+                
+                
+        
+        
+    def verifObstacleTour(self):
+            if self.caseArrivee.ligne==self.caseDepart.ligne:
+                if self.caseArrivee.colonne-self.caseDepart.colonne>0:
+                    for i in range(self.caseDepart.colonne+1,self.caseArrivee.colonne,1):
+                        if self.jeu[self.caseArrivee.ligne][i].piece!=None:
+                            return False
+                else:
+                    for i in range(self.caseArrivee.colonne+1,self.caseDepart.colonne,1):
+                        if self.jeu[self.caseArrivee.ligne][i].piece!=None:
+                            return False
+                        
+                        
+            if self.caseArrivee.colonne==self.caseDepart.colonne:
+                
+                if self.caseArrivee.ligne-self.caseDepart.ligne>0:
+                    for i in range(self.caseDepart.ligne+1,self.caseArrivee.ligne,1):
+                        if self.jeu[i][self.caseArrivee.colonne].piece!=None:
+                            return False
+                else:
+                    for i in range(self.caseArrivee.ligne+1,self.caseDepart.ligne,1):
+                        if self.jeu[i][self.caseArrivee.colonne].piece!=None:
+                            return False
+            return True
+                        
+    def verifObstacleFou(self):
+            if self.caseArrivee.colonne-self.caseDepart.colonne>0:
+                if self.caseArrivee.ligne-self.caseDepart.ligne>0:
+                    for i in range(self.caseDepart.colonne+1,self.caseArrivee.colonne,1):
+                        for j in range(self.caseDepart.ligne+1,self.caseArrivee.ligne,1):
+                            if self.jeu[j][i].piece!=None:
+                                return False
+                else:
+                    for i in range(self.caseDepart.colonne+1,self.caseArrivee.colonne,1):
+                        for j in range(self.caseArrivee.ligne+1,self.caseDepart.ligne,1):
+                            if self.jeu[j][i].piece!=None:
+                                return False
+            else:
+                if self.caseArrivee.ligne-self.caseDepart.ligne>0:
+                    for i in range(self.caseArrivee.colonne+1,self.caseDepart.colonne,1):
+                        for j in range(self.caseDepart.ligne+1,self.caseArrivee.ligne,1):
+                            if self.jeu[j][i].piece!=None:
+                                return False
+                else:
+                    for i in range(self.caseArrivee.colonne+1,self.caseDepart.colonne,1):
+                        for j in range(self.caseArrivee.ligne+1,self.caseDepart.ligne,1):
+                            if self.jeu[j][i].piece!=None:
+                                return False          
+            return True
+            
+        
     
     
     
@@ -238,15 +349,15 @@ class Echiquier:
                 self.drawCase(case) 
                 
         if self.caseDepart!=None:
+            if self.caseDepart.piece!=None and (self.caseDepart.piece.rect != None) :
+                    
 #            img = pygame.image.load("45px-Chess_kdt45.png")
 #            img = pygame.transform.scale(img, (75, 75))
 #            self.screen.blit(img, (self.deplacement[0]-75//2,self.deplacement[1]-75//2))
-            imagesPieces = pygame.image.load("2000px-Chess_Pieces_Sprite.png")
-            imagesPieces = pygame.transform.scale(imagesPieces, (75*6, 75*2))
-            self.screen.blit(imagesPieces,
-                             (self.deplacement[0]-75//2,
-                              self.deplacement[1]-75//2),
-                              (4*75,1*75,75,75))
+                    self.screen.blit(self.imagesPieces,
+                                     (self.deplacement[0]-75//2,
+                                      self.deplacement[1]-75//2),
+                                      self.caseDepart.piece.rect)
             
 #            surface=pygame.Surface((333,333))
 #            img.blit(surface, (self.deplacement[0]-333//2,self.deplacement[1]-333//2),(0,0,600,600))         
