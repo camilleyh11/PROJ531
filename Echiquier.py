@@ -3,6 +3,7 @@ import pygame
 from Case import Case
 from Piece import Piece
 from Jeu import Jeu
+from Joueur import Joueur
 #from deplacement_des_pieces import Pieces
 
 class Echiquier:
@@ -10,13 +11,17 @@ class Echiquier:
     # Constructeur
     def __init__(self) :
         self.MoteurJeu=Jeu()
+        self.joueur=Joueur('Blanc',1,self,True)
+        self.ordi=Joueur('Noir',0,self,False)
         self.initPygame()
         self.jeu=[]
         self.caseLongueur=75
         self.caseLargeur=75
+        self.coupValide=False
         self.caseDepart=None
         self.caseArrivee=None
         self.deplacement=None
+
         # chargement d'une image contenant toutes les pieces
         # et redimensionnement à la taille des cases
         self.imagesPieces=pygame.image.load("2000px-Chess_Pieces_Sprite.png")
@@ -113,9 +118,9 @@ class Echiquier:
         self.jeu[0][4].setPiece(roiNoir)
         
         #creation Reine Noir
-        reineBlanc=Piece('Noir','Reine',(1*self.caseLongueur,1*self.caseLargeur,
+        reineNoir=Piece('Noir','Reine',(1*self.caseLongueur,1*self.caseLargeur,
                                     self.caseLongueur,self.caseLargeur))
-        self.jeu[0][3].setPiece(reineBlanc)
+        self.jeu[0][3].setPiece(reineNoir)
         
         #creation Fou Noir
         for i in [2,5]:
@@ -197,7 +202,7 @@ class Echiquier:
         
     def mouseButtonUp(self,coord):
         self.caseArrivee=self.getCase(coord)
-        self.deplacementPiece()
+        self.joue()
         self.caseDepart=None
         
 
@@ -223,6 +228,24 @@ class Echiquier:
                     return case
         return None
                     
+    def joue(self):
+                if self.joueur.joue:
+                    if self.caseDepart != None:
+                        if self.caseDepart.piece.couleur==self.joueur.couleur:
+                                self.deplacementPiece()
+                                if self.coupValide:
+                                    self.joueur.setJoue(False)
+                                    self.ordi.setJoue(True)
+                                    self.coupValide=False
+                else:
+                    if self.caseDepart != None:
+                        if self.caseDepart.piece.couleur==self.ordi.couleur:
+                                self.deplacementPiece()
+                                if self.coupValide:
+                                    self.ordi.setJoue(False)
+                                    self.joueur.setJoue(True)
+                                    self.coupValide=False
+    #def miseDangerRoi(self):
         
         
     def deplacementPiece(self):
@@ -232,29 +255,35 @@ class Echiquier:
             if self.caseArrivee!=None and (self.caseArrivee.piece== None or self.caseArrivee.piece.couleur!=pieceD.couleur)and self.verifObstacle(pieceD.nom):
                 if pieceD.nom=='Tour':
                     if self.MoteurJeu.deplacement_tour(self.caseArrivee,self.caseDepart):
+                        self.coupValide=True
                         self.caseDepart.setPiece()
                         self.caseArrivee.setPiece(pieceD)
                 if pieceD.nom=='Fou':
                     if self.MoteurJeu.deplacement_fou(self.caseArrivee,self.caseDepart):
+                        self.coupValide=True
                         self.caseDepart.setPiece()
                         self.caseArrivee.setPiece(pieceD)
                 if pieceD.nom=='Reine':
                     if self.MoteurJeu.deplacement_reine(self.caseArrivee,self.caseDepart):
+                        self.coupValide=True
                         self.caseDepart.setPiece()
                         self.caseArrivee.setPiece(pieceD)
                         
                 if pieceD.nom=='Roi':
                     if self.MoteurJeu.deplacement_roi(self.caseArrivee,self.caseDepart):
+                        self.coupValide=True
                         self.caseDepart.setPiece()
                         self.caseArrivee.setPiece(pieceD)
                         
                 if pieceD.nom=='Cavalier':
                     if self.MoteurJeu.deplacement_cavalier(self.caseArrivee,self.caseDepart):
+                        self.coupValide=True
                         self.caseDepart.setPiece()
                         self.caseArrivee.setPiece(pieceD)
                         
                 if pieceD.nom =='Pion' and self.verifObstacle(pieceD.nom,pieceD.couleur) :
                     if self.MoteurJeu.deplacement_pion(self.caseArrivee,self.caseDepart,self.caseDepart.piece.couleur):
+                        self.coupValide=True
                         self.caseDepart.setPiece()
                         self.caseArrivee.setPiece(pieceD)
             

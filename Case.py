@@ -13,7 +13,7 @@ class Case:
         self.couleur=couleur
         
     #Permet de changer la piece sur la case
-    def setPiece(self, piece):
+    def setPiece(self, piece=None):
         self.piece = piece
         
             
