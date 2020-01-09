@@ -104,6 +104,13 @@ class Echiquier:
                     return case
         return None
     
+    def getCaseRoi(self,couleur):
+        for ligne in self.jeu:
+            for case in ligne:
+                if case.piece != None:                    
+                    if case.piece.couleur==couleur and case.piece.nom=='Roi':
+                        return [case.ligne,case.colonne]
+    
 ###############################################################################
     '''INITIALISATION DU PLATEAU DE JEU'''
 ###############################################################################

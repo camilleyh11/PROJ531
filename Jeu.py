@@ -159,13 +159,13 @@ class Jeu:
                     if caseDepart != None and caseDepart.piece!=None:
                         # Si la piece selectionnee est de sa couleur
                         if caseDepart.piece.couleur==self.joueur.couleur:
-                                self.deplacementPiece(caseDepart,caseArrivee,echiquier)
+                                if self.deplacementPiecePossible(caseDepart,caseArrivee,echiquier):
                                 # Si le coup est valide, on change de joueur
                                 #et on remet coupValide a False
-                                if self.coupValide:
-                                    self.joueur.setJoue(False)
-                                    self.ordi.setJoue(True)
-                                    self.coupValide=False
+                                    if self.coupValide:
+                                        self.deplacementPiece(caseDepart,caseArrivee)
+                                        self.joueur.setJoue(False)
+                                        self.ordi.setJoue(True)
                                     
                 #Si l'ordi doit jouer
                 else:
@@ -173,19 +173,23 @@ class Jeu:
                     if caseDepart != None and caseDepart.piece!=None:
                         # Si la piece selectionnee est de sa couleur
                         if caseDepart.piece.couleur==self.ordi.couleur:
-                                self.deplacementPiece(caseDepart,caseArrivee,echiquier)
-                                # Si le coup est valide, on change de joueur
-                                #et on remet coupValide a False
-                                if self.coupValide:
-                                    self.ordi.setJoue(False)
-                                    self.joueur.setJoue(True)
-                                    self.coupValide=False
-    #    def miseDangerRoi(self,case):
-    #        return case.ligne
+                                if self.deplacementPiecePossible(caseDepart,caseArrivee,echiquier):
+                                    # Si le coup est valide, on change de joueur
+                                    #et on remet coupValide a False
+                                    if self.coupValide:
+                                        self.deplacementPiece(caseDepart,caseArrivee)
+                                        self.ordi.setJoue(False)
+                                        self.joueur.setJoue(True)
+                                    
+    def deplacementPiece(self,caseDepart,caseArrivee):
+        pieceD=caseDepart.piece
+        caseDepart.setPiece()
+        caseArrivee.setPiece(pieceD)
+        self.coupValide=False
         
     ''' Deplace la piece selectionee '''
     
-    def deplacementPiece(self,caseDepart,caseArrivee,echiquier):
+    def deplacementPiecePossible(self,caseDepart,caseArrivee,echiquier):
         
         # Si la caseDepart est sur l'echiquier et qu'il y a une piece
         if caseDepart!=None and caseDepart.piece!=None:
@@ -196,38 +200,27 @@ class Jeu:
             # si il n'y a pas d'obstacle sur la trajectoire de la piece deplacee
             if caseArrivee!=None and (caseArrivee.piece== None or caseArrivee.piece.couleur!=pieceD.couleur)and self.verifObstacle(pieceD.nom,pieceD.couleur,caseDepart,caseArrivee,echiquier):
                 if pieceD.nom=='Tour':
-                    if self.deplacement_tour(caseArrivee,caseDepart):
-                        self.coupValide=True
-                        caseDepart.setPiece()
-                        caseArrivee.setPiece(pieceD)
+                    self.coupValide=True
+                    return self.deplacement_tour(caseArrivee,caseDepart)
                 if pieceD.nom=='Fou':
-                    if self.deplacement_fou(caseArrivee,caseDepart):
-                        self.coupValide=True
-                        caseDepart.setPiece()
-                        caseArrivee.setPiece(pieceD)
+                    self.coupValide=True
+                    return self.deplacement_fou(caseArrivee,caseDepart)
+                    
                 if pieceD.nom=='Reine':
-                    if self.deplacement_reine(caseArrivee,caseDepart):
-                        self.coupValide=True
-                        caseDepart.setPiece()
-                        caseArrivee.setPiece(pieceD)
+                    self.coupValide=True
+                    return self.deplacement_reine(caseArrivee,caseDepart)
                         
                 if pieceD.nom=='Roi':
-                    if self.deplacement_roi(caseArrivee,caseDepart):
-                        self.coupValide=True
-                        caseDepart.setPiece()
-                        caseArrivee.setPiece(pieceD)
+                    self.coupValide=True
+                    return self.deplacement_roi(caseArrivee,caseDepart)
                         
                 if pieceD.nom=='Cavalier':
-                    if self.deplacement_cavalier(caseArrivee,caseDepart):
-                        self.coupValide=True
-                        caseDepart.setPiece()
-                        caseArrivee.setPiece(pieceD)
+                    self.coupValide=True
+                    return self.deplacement_cavalier(caseArrivee,caseDepart)
                         
                 if pieceD.nom =='Pion' and self.verifObstacle(pieceD.nom,pieceD.couleur,caseDepart,caseArrivee,echiquier) :
-                    if self.deplacement_pion(caseArrivee,caseDepart,caseDepart.piece.couleur):
-                        self.coupValide=True
-                        caseDepart.setPiece()
-                        caseArrivee.setPiece(pieceD)
+                    self.coupValide=True
+                    return self.deplacement_pion(caseArrivee,caseDepart,caseDepart.piece.couleur)
     
     
     ''' On verifie que la piece passee en parametre peut jouer le coup,
@@ -327,4 +320,38 @@ class Jeu:
                     ligneA=ligneA+1 
         return True
             
+###############################################################################
+        '''MISE EN DANGER DU ROI'''
+###############################################################################
+        
+    def adversairePeutAttaquer(self,caseAdverse,caseRoi,echiquier):
+        return self.deplacementPiecePossible(caseAdverse,caseRoi,echiquier)
+    
+    def peutEtreAttaquer(self,echiquier):
+        pass
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         

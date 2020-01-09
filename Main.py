@@ -7,7 +7,6 @@ Created on Wed Nov 27 14:35:24 2019
 
 import pygame
 from Echiquier import Echiquier
-from Case import Case
 
 def main():
     jeu=Echiquier()
