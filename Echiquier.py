@@ -109,7 +109,7 @@ class Echiquier:
             for case in ligne:
                 if case.piece != None:                    
                     if case.piece.couleur==couleur and case.piece.nom=='Roi':
-                        return [case.ligne,case.colonne]
+                        return case
     
 ###############################################################################
     '''INITIALISATION DU PLATEAU DE JEU'''
