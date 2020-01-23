@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Jan  8 09:57:01 2020
-
 @author: ruellee
 """
+import random
+
 from Joueur import Joueur
 class Jeu:
     
@@ -12,6 +13,7 @@ class Jeu:
         self.coupValide=False # Pour savoir si le coup joue est valide
         self.joueur=Joueur('Blanc',1,self,True) # L'humain joue les blancs
         self.ordi=Joueur('Noir',0,self,False) # L'IA joue les noirs
+        self.pat=False
     
     def getJoueur(self):
         if self.joueur.joue==True:
@@ -79,10 +81,11 @@ class Jeu:
                 
         if DepHorizon or DepVertical or DepDiag:
             return True
+        return False
         
 ###############################################################################       
             
-    ''' le roi se deplace soit d'une colonne puis de 2 lignes soit 
+    ''' le cavalier se deplace soit d'une colonne puis de 2 lignes soit 
      d'une ligne puis deux colonnes'''
      
     def deplacement_cavalier(self,caseArrivee, caseDepart):
@@ -94,6 +97,7 @@ class Jeu:
             return (colonneA==colonneD+2 or colonneA==colonneD-2)
         if colonneA==colonneD+1 or colonneA==colonneD-1:
             return (ligneA==ligneD+2 or ligneA==ligneD-2)
+        return False
         
 ###############################################################################     
             
@@ -138,6 +142,7 @@ class Jeu:
                     #caseDepart.piece.aDejaJoue=True
 
                     return (ligneA==ligneD+1 or ligneA==ligneD+2)
+        return False
         
                     
         '''Le pion mange en diagonal, il faut donc verifier qu'une piece
@@ -166,7 +171,7 @@ class Jeu:
                 if caseArrivee.ligne==caseDepart.ligne+1:
                     caseDepart.piece.aDejaJoue=True
                     return True
-        
+        return False
         
 ###############################################################################
     ''' JOUER UN COUP'''
@@ -175,34 +180,95 @@ class Jeu:
     '''Verifie qui doit jouer et deplace la piece si le coup demande et valide
     sinon le joueur doit jouer jusqu'a tant que le coup soit valide'''
     
+
+    
+    
     def joue(self,caseDepart,caseArrivee,echiquier):
-        joueur=self.getJoueur()
-        adversaire=self.getJoueurAdverse()
-        # Si il clique sur une case de l'echiquier et qu'il y a une piece
         if caseDepart != None and caseDepart.piece!=None:
-            # Si la piece selectionnee est de sa couleur
-            if caseDepart.piece.couleur==joueur.couleur:
-                if not self.estAttaque(echiquier):
-                    if caseDepart.piece.nom=='Roi':
-                        if not self.seMetEnDanger(echiquier,joueur,caseArrivee):  
+            if self.echecPat(echiquier):
+                print('Pat, egalite')
+                self.pat=True
+            if self.echecEtMat(echiquier):
+                print('quit')
+                #pygame.quit()
+            joueur=self.getJoueur()
+            adversaire=self.getJoueurAdverse()
+            # Si il clique sur une case de l'echiquier et qu'il y a une piece
+            if caseDepart != None and caseDepart.piece!=None:
+                # Si la piece selectionnee est de sa couleur
+                if caseDepart.piece.couleur==joueur.couleur:
+                    if not self.estAttaque(echiquier):
+                        if caseDepart.piece.nom=='Roi':
+                            if not self.seMetEnDanger(echiquier,joueur,caseArrivee):  
+                                if self.deplacementPiecePossible(caseDepart,caseArrivee,echiquier):
+                                    if self.coupValide:
+                                        if joueur==self.joueur:
+                                            self.deplacementPiece(caseDepart,caseArrivee)
+                                            joueur.setJoue(False)
+                                            adversaire.setJoue(True)
+                                            self.coupAleatoire(echiquier)
+                                        if joueur==self.ordi:
+                                            print('coucou')
+                                            self.deplacementPiece(caseDepart,caseArrivee)
+                                            joueur.setJoue(False)
+                                            adversaire.setJoue(True)
+                        else:
                             if self.deplacementPiecePossible(caseDepart,caseArrivee,echiquier):
-                                if self.coupValide:                       
-                                    self.deplacementPiece(caseDepart,caseArrivee)
-                                    joueur.setJoue(False)
-                                    adversaire.setJoue(True)
-                    else:    
-                        if self.deplacementPiecePossible(caseDepart,caseArrivee,echiquier):
-                            # Si le coup est valide, on change de joueur
-                            #et on remet coupValide a False
-                            if self.coupValide:
-                                self.deplacementPiece(caseDepart,caseArrivee)
-                                joueur.setJoue(False)
-                                adversaire.setJoue(True)
-                else:
-                    
-                    print('coucou')
-                    pass
+                                # Si le coup est valide, on change de joueur
+                                #et on remet coupValide a False
+                                if self.coupValide:
+                                    if joueur==self.joueur:
+                                            self.deplacementPiece(caseDepart,caseArrivee)
+                                            joueur.setJoue(False)
+                                            adversaire.setJoue(True)
+                                            self.coupAleatoire(echiquier)
+                                    if joueur==self.ordi:
+                                        print('pas roi')
+                                        self.deplacementPiece(caseDepart,caseArrivee)
+                                        joueur.setJoue(False)
+                                        adversaire.setJoue(True)
+                    else:
+                        if caseDepart.piece.nom=='Roi':
+                            if self.seMetEnDanger(echiquier,joueur,caseArrivee)==False:
+                                if self.deplacementPiecePossible(caseDepart,caseArrivee,echiquier):
+                                    if self.coupValide:                       
+                                        if joueur==self.joueur:
+                                            self.deplacementPiece(caseDepart,caseArrivee)
+                                            joueur.setJoue(False)
+                                            adversaire.setJoue(True)
+                                            self.coupAleatoire(echiquier)
+                                        if joueur==self.ordi:
+                                            self.deplacementPiece(caseDepart,caseArrivee)
+                                            joueur.setJoue(False)
+                                            adversaire.setJoue(True)
+                        else:
+                            if joueur==self.joueur:
+                                self.protegeRoi(echiquier,caseDepart,caseArrivee)
+                                            #joueur.setJoue(False)
+                                            #adversaire.setJoue(True)
+                                self.coupAleatoire(echiquier)
+                            if joueur==self.ordi:
+                                self.protegeRoi(echiquier,caseDepart,caseArrivee)
+                                            #joueur.setJoue(False)
+                                            #adversaire.setJoue(True)
+                            
+    def coupAleatoire(self,echiquier):
+        listePiece=echiquier.getPieceNoir()
+        num=random.randint(0,len(listePiece)-1)
+        piece=listePiece[num]
+        listeCaseA=self.getDeplacementPossible(echiquier,piece)
         
+        if listeCaseA==[]:
+            self.coupAleatoire(echiquier)
+        else:
+            numCaseA=random.randint(0,len(listeCaseA)-1)
+            caseA=listeCaseA[numCaseA]
+            caseD=echiquier.getCasePiece(listePiece[num])
+            print('pieceNOir',caseD.piece)
+            self.joue(caseD,caseA,echiquier)
+    
+                        
+                        
                                     
     def deplacementPiece(self,caseDepart,caseArrivee):
         if caseArrivee !=None:
@@ -247,6 +313,19 @@ class Jeu:
 
                     self.coupValide=True
                     return self.deplacement_pion(caseArrivee,caseDepart,caseDepart.piece.couleur)
+                return False
+            return False
+        return False
+    
+    def getDeplacementPossible(self,echiquier,piece):
+        listeCaseA=[]
+        caseD=echiquier.getCasePiece(piece)
+        for ligne in echiquier.jeu:
+            for case in ligne:
+                if self.deplacementPiecePossible(caseD,case,echiquier):
+                   listeCaseA.append(case) 
+        return listeCaseA
+                
             
     
     
@@ -355,32 +434,97 @@ class Jeu:
         return self.deplacementPiecePossible(caseAdverse,caseRoi,echiquier)
     
     def seMetEnDanger(self,echiquier,joueur,futurCaseRoi):
-        for ligne in echiquier.jeu:
-            for case in ligne:
-                if case.piece!= None and case.piece.couleur!=joueur.couleur:
-                    if case.piece.nom=='Pion':
-                        if self.pionMangePiece(futurCaseRoi,case,case.piece.couleur):
-                            return True
-                    else:
-                        if self.adversairePeutAttaquer(case,futurCaseRoi,echiquier):
-                            return True
+        caseR=echiquier.getCaseRoi(joueur.couleur)
+        pieceR=caseR.piece
+        caseR.setPiece()
+        if futurCaseRoi!=None:     
+            for ligne in echiquier.jeu:
+                for case in ligne:
+                    if case.piece!= None and case.piece.couleur!=joueur.couleur:
+                        if case.piece.nom=='Pion':
+                            if self.pionMangePiece(futurCaseRoi,case,case.piece.couleur):
+                                caseR.setPiece(pieceR)
+                                return True
+                        else:
+                            if self.adversairePeutAttaquer(case,futurCaseRoi,echiquier):
+                                caseR.setPiece(pieceR)
+                                return True
+        caseR.setPiece(pieceR)
         return False
+    
+    def protegeRoi(self,echiquier,caseDepart,caseArrivee):  
+        if self.deplacementPiecePossible(caseDepart,caseArrivee,echiquier):
+            # Si le coup est valide, on change de joueur
+            #et on remet coupValide a False
+            if self.coupValide:
+                self.deplacementPiece(caseDepart,caseArrivee)
+                if self.estAttaque(echiquier):
+                    self.deplacementPiece(caseArrivee,caseDepart)
         
-    def miseEnDanger(self,echiquier):
-        pass
     
     def estAttaque(self,echiquier):
         joueur=self.getJoueur()
         caseRoi=echiquier.getCaseRoi(joueur.couleur)
         return self.seMetEnDanger(echiquier,joueur,caseRoi)
         
-    def echec(self):
-        pass
     
+    def echecRoi(self,echiquier):
+        caseR=echiquier.getCaseRoi(self.getJoueur().couleur)
+        if self.estAttaque(echiquier):              
+            for ligne in range(caseR.ligne-1,caseR.ligne+2,1):
+                for colonne in range(caseR.colonne-1,caseR.colonne+2,1):
+                    if ligne<8 and colonne <8 and ligne>=0 and colonne>=0:   
+                        case=echiquier.jeu[ligne][colonne]
+                        if case!=caseR:
+                            if case.piece==None or case.piece.couleur!=caseR.piece.couleur:
+                                if not self.seMetEnDanger(echiquier,self.getJoueur(),case):
+                                    return False
+                                
+            print('fin')
+            return True
+        return False
+        
+        
+    def echecEtMat(self,echiquier):
+        joueur=self.getJoueur()
+        if self.echecRoi(echiquier):
+            for ligne in echiquier.jeu:
+                for case in ligne:
+                    if case.piece!= None:
+                            
+                        if case.piece.couleur==joueur.couleur:
+                            for l in echiquier.jeu:
+                                for c in l:
+                                    if self.protegeRoi(echiquier,case,c):
+                        
+                                        return False
+            return True
+        return False
         
         
         
-        
+
+    def echecPat(self,echiquier):
+        joueur=self.getJoueur()
+        if not self.echecRoi(echiquier):
+            for ligne in echiquier.jeu:
+                for case in ligne:
+                    if case.piece!=None:
+                        if case.piece.couleur==joueur.couleur:
+                            for l in echiquier.jeu:
+                                for c in l:
+                                    if case.piece.nom=='Roi':
+                                        if self.deplacementPiecePossible(case,c,echiquier):
+                                            if not self.seMetEnDanger(echiquier,joueur,c):
+                                                return False
+                                            
+                                    else:
+                                        if self.deplacementPiecePossible(case,c,echiquier):
+                                            return False
+                                        
+            return True
+        return False
+                        
         
         
         

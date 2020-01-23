@@ -17,3 +17,5 @@ class Joueur:
     # Pour changer qui doit jouer
     def setJoue(self, jouer):
         self.joue=jouer
+    
+        

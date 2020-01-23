@@ -104,12 +104,28 @@ class Echiquier:
                     return case
         return None
     
+    def getCasePiece(self,piece):
+        for ligne in self.jeu:
+            for case in ligne:
+                if case.piece==piece:
+                    return case
+        return None
+    
     def getCaseRoi(self,couleur):
         for ligne in self.jeu:
             for case in ligne:
                 if case.piece != None:                    
                     if case.piece.couleur==couleur and case.piece.nom=='Roi':
                         return case
+                    
+    def getPieceNoir(self):
+        listePiece=[]
+        for ligne in self.jeu:
+            for case in ligne:
+                if case.piece!=None :
+                    if case.piece.couleur=='Noir':
+                        listePiece.append(case.piece)
+        return listePiece
     
 ###############################################################################
     '''INITIALISATION DU PLATEAU DE JEU'''
@@ -233,14 +249,17 @@ class Echiquier:
         self.caseDepart=self.getCase(coord)
         self.deplacement=coord
         
-
+        
     # Quand on relache la souris
     def mouseButtonUp(self,coord):
         # On sauvegarde la case d'arrivee, on appelle joue
         # et on efface la valeur de caseDepart
         self.caseArrivee=self.getCase(coord)
-        self.moteurJeu.joue(self.caseDepart,self.caseArrivee,self)
-        self.caseDepart=None
+        if self.moteurJeu.echecEtMat(self):
+            print('le joueur est en echec')
+        else:  
+            self.moteurJeu.joue(self.caseDepart,self.caseArrivee,self)
+            self.caseDepart=None
         
 
     # Quand on deplace la souris
@@ -257,7 +276,8 @@ class Echiquier:
     def display(self):
         # efface l'ecran en noir pour ne pas voir les pieces qui sortent
         # du plateau de jeu
-        pygame.draw.rect(self.screen,[0,0,0],[0,0,self.screen.get_width(),self.screen.get_height()],0)
+        pygame.draw.rect(self.screen,[20,20,20],[0,0,self.screen.get_width(),self.screen.get_height()],0)
+        pygame.draw.rect(self.screen,[253,108,158],[self.screen.get_width()//2-200,50,400,100],0)
                     
         # dessine l'echiquier
         for ligne in self.jeu:
@@ -292,5 +312,15 @@ class Echiquier:
                              (case.rect[0],case.rect[1]),
                               case.piece.rect)
             
-###############################################################################               
 ###############################################################################
+    '''AFFICHAGE BOUTONS'''               
+###############################################################################
+        
+        
+        
+        
+        
+        
+        
+        
+        
