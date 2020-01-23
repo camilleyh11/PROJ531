@@ -208,7 +208,6 @@ class Jeu:
                                             adversaire.setJoue(True)
                                             self.coupAleatoire(echiquier)
                                         if joueur==self.ordi:
-                                            print('coucou')
                                             self.deplacementPiece(caseDepart,caseArrivee)
                                             joueur.setJoue(False)
                                             adversaire.setJoue(True)
@@ -223,7 +222,6 @@ class Jeu:
                                             adversaire.setJoue(True)
                                             self.coupAleatoire(echiquier)
                                     if joueur==self.ordi:
-                                        print('pas roi')
                                         self.deplacementPiece(caseDepart,caseArrivee)
                                         joueur.setJoue(False)
                                         adversaire.setJoue(True)
@@ -244,29 +242,34 @@ class Jeu:
                         else:
                             if joueur==self.joueur:
                                 self.protegeRoi(echiquier,caseDepart,caseArrivee)
-                                            #joueur.setJoue(False)
-                                            #adversaire.setJoue(True)
+                                joueur.setJoue(False)
+                                adversaire.setJoue(True)
                                 self.coupAleatoire(echiquier)
                             if joueur==self.ordi:
                                 self.protegeRoi(echiquier,caseDepart,caseArrivee)
-                                            #joueur.setJoue(False)
-                                            #adversaire.setJoue(True)
+                                joueur.setJoue(False)
+                                adversaire.setJoue(True)
                             
     def coupAleatoire(self,echiquier):
         listePiece=echiquier.getPieceNoir()
         num=random.randint(0,len(listePiece)-1)
         piece=listePiece[num]
         listeCaseA=self.getDeplacementPossible(echiquier,piece)
-        
-        if listeCaseA==[]:
-            self.coupAleatoire(echiquier)
+        if not self.echecEtMat(echiquier) and not self.echecPat(echiquier):       
+            if listeCaseA==[]:
+                self.coupAleatoire(echiquier)
+            else:
+                numCaseA=random.randint(0,len(listeCaseA)-1)
+                caseA=listeCaseA[numCaseA]
+                caseD=echiquier.getCasePiece(listePiece[num])
+                if not self.seMetEnDanger(echiquier,self.ordi,caseA): 
+                    self.joue(caseD,caseA,echiquier)
+                else:
+                    self.coupAleatoire(echiquier)
+                    
         else:
-            numCaseA=random.randint(0,len(listeCaseA)-1)
-            caseA=listeCaseA[numCaseA]
-            caseD=echiquier.getCasePiece(listePiece[num])
-            print('pieceNOir',caseD.piece)
-            self.joue(caseD,caseA,echiquier)
-    
+            pass
+        
                         
                         
                                     
