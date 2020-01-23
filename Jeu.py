@@ -13,8 +13,9 @@ class Jeu:
         self.coupValide=False # Pour savoir si le coup joue est valide
         self.joueur=Joueur('Blanc',1,self,True) # L'humain joue les blancs
         self.ordi=Joueur('Noir',0,self,False) # L'IA joue les noirs
-        self.pat=False
+        self.pat=False #On initialise le pat à faux
     
+    #on recupere le joueur qui joue 
     def getJoueur(self):
         if self.joueur.joue==True:
             return self.joueur
@@ -101,14 +102,19 @@ class Jeu:
         
 ###############################################################################     
             
+    '''Soit le pion peut manger une piece adverse qui est dans sa diagonale
+    sinon le pion se deplace'''
     
     def deplacement_pion(self,caseArrivee, caseDepart,couleur):
         mange=False
         avance=False
+        #le pion mange si une piece si la case arrivee possede une piece adverse
         if caseArrivee.piece!=None and caseArrivee.piece.couleur!=couleur:
             mange=self.pionMangePiece(caseArrivee, caseDepart,couleur)
+        #sinon le pion avance
         else:
             avance=self.pionAvance(caseArrivee, caseDepart,couleur)
+        #return true si le pion avance ou mange
         return avance or mange
         
     ''' Le pion ne peut qu'avancer de deux cases (si c'est le premier deplacement)
@@ -320,12 +326,19 @@ class Jeu:
             return False
         return False
     
+    #cette methode permet d'obtenir l'ensemble des deplacements que peut 
+    #effectuer une piece passee en parametre
     def getDeplacementPossible(self,echiquier,piece):
+        #on cree une liste vide de cases d'arrivee
         listeCaseA=[]
+        #on recupere la case de départ grace au getter
         caseD=echiquier.getCasePiece(piece)
+        #on parcourt l'echiquier
         for ligne in echiquier.jeu:
             for case in ligne:
+                #si la piece peut se deplacer
                 if self.deplacementPiecePossible(caseD,case,echiquier):
+                    #on ajoute la case arrivee dans la liste des cases arrivee
                    listeCaseA.append(case) 
         return listeCaseA
                 
@@ -432,100 +445,147 @@ class Jeu:
 ###############################################################################
         '''MISE EN DANGER DU ROI'''
 ###############################################################################
-        
+    
+    #methode pour savoir si l'adversaire peut attaquer le roi
     def adversairePeutAttaquer(self,caseAdverse,caseRoi,echiquier):
+        #return true si une piece adverse peut "manger" le roi sinon false
         return self.deplacementPiecePossible(caseAdverse,caseRoi,echiquier)
     
+    #methode pour savoir si le roi se met en danger
     def seMetEnDanger(self,echiquier,joueur,futurCaseRoi):
+        #on recupere la case du roi
         caseR=echiquier.getCaseRoi(joueur.couleur)
         pieceR=caseR.piece
         caseR.setPiece()
-        if futurCaseRoi!=None:     
+        #si la future case du roi existe
+        if futurCaseRoi!=None:
+            #on parcourt l'echiquier
             for ligne in echiquier.jeu:
                 for case in ligne:
+                    #si la case possede une piece d'une couleur differente 
+                    #de celle du roi
                     if case.piece!= None and case.piece.couleur!=joueur.couleur:
+                        #si c'est le pion
                         if case.piece.nom=='Pion':
+                            #si le pion pourra manger le roi sur sa future case
+                            #alors le roi est en danger -> return true
                             if self.pionMangePiece(futurCaseRoi,case,case.piece.couleur):
                                 caseR.setPiece(pieceR)
                                 return True
+                        #si c'est une autre piece que le pion
                         else:
+                            #on appelle adversairePeutAttaquer, si True alors 
+                            #le roi est en danger -> return true
                             if self.adversairePeutAttaquer(case,futurCaseRoi,echiquier):
                                 caseR.setPiece(pieceR)
                                 return True
+        #le roi n'est pas en danger on retourne false
         caseR.setPiece(pieceR)
         return False
     
+    #methode qui permet de proteger le roi
     def protegeRoi(self,echiquier,caseDepart,caseArrivee):  
+        #si le deplacement de la piece choisie est possible
         if self.deplacementPiecePossible(caseDepart,caseArrivee,echiquier):
-            # Si le coup est valide, on change de joueur
-            #et on remet coupValide a False
+            # Si le coup est valide
             if self.coupValide:
+                #on deplace la piece
                 self.deplacementPiece(caseDepart,caseArrivee)
+                #si le roi est attaque
                 if self.estAttaque(echiquier):
+                    #on deplace la piece
                     self.deplacementPiece(caseArrivee,caseDepart)
         
-    
+    #methode qui permet de savoir si le roi est attaque
     def estAttaque(self,echiquier):
+        #on recupere le joueur
         joueur=self.getJoueur()
+        #on recupere le roi du joueur
         caseRoi=echiquier.getCaseRoi(joueur.couleur)
+        #on retourne true si le roi est en dange sur sa case actuelle
+        #sinon on retourne false
         return self.seMetEnDanger(echiquier,joueur,caseRoi)
         
-    
+   #methode qui permet de savoir si le roi est en echec 
     def echecRoi(self,echiquier):
+        #on recupere la case du roi du joueur
         caseR=echiquier.getCaseRoi(self.getJoueur().couleur)
-        if self.estAttaque(echiquier):              
+        #si le roi est attaque
+        if self.estAttaque(echiquier):
+            #on parcourt les cases qui sont autour du roi (les cases sur 
+            #lesquelles il peut se deplacer)              
             for ligne in range(caseR.ligne-1,caseR.ligne+2,1):
                 for colonne in range(caseR.colonne-1,caseR.colonne+2,1):
                     if ligne<8 and colonne <8 and ligne>=0 and colonne>=0:   
                         case=echiquier.jeu[ligne][colonne]
                         if case!=caseR:
+                            #si la case ne possede pas de pice ou si la case
+                            #a une piece adverse
                             if case.piece==None or case.piece.couleur!=caseR.piece.couleur:
+                                #si le roi n'est pas en danger -> return false
                                 if not self.seMetEnDanger(echiquier,self.getJoueur(),case):
                                     return False
                                 
+            #si le roi est en danger -> return true                    
             print('fin')
             return True
         return False
         
-        
+    #methode pour savoir s'il y a echec et mat    
     def echecEtMat(self,echiquier):
+        #on recupere le joueur
         joueur=self.getJoueur()
+        #si le roi est en echec
         if self.echecRoi(echiquier):
+            #on parcourt l'echiquier
             for ligne in echiquier.jeu:
                 for case in ligne:
                     if case.piece!= None:
-                            
                         if case.piece.couleur==joueur.couleur:
                             for l in echiquier.jeu:
                                 for c in l:
+                                    #si le roi peut etre protege -> pas d'echec
+                                    #et mat -> return false
                                     if self.protegeRoi(echiquier,case,c):
                         
                                         return False
+            #si le roi ne peut pas etre protege alors echec et mat -> true                        
             return True
+        #si le roi n'est pas en echec -> pas d'echec et mat ->false
         return False
         
         
         
-
+    #methode qui permet de savoir s'il y a pat
     def echecPat(self,echiquier):
+        #on recupere le joueur
         joueur=self.getJoueur()
+        #si le roi n'est pas en echec
         if not self.echecRoi(echiquier):
+            #on parcourt l'echiquier
             for ligne in echiquier.jeu:
                 for case in ligne:
                     if case.piece!=None:
                         if case.piece.couleur==joueur.couleur:
                             for l in echiquier.jeu:
                                 for c in l:
+                                    #si la case est le roi
                                     if case.piece.nom=='Roi':
+                                        #si le roi peut se deplacer
                                         if self.deplacementPiecePossible(case,c,echiquier):
+                                            #si le roi ne se met pas en danger
                                             if not self.seMetEnDanger(echiquier,joueur,c):
+                                                #il n'y a pas de pat -> false
                                                 return False
-                                            
+                                    #si ce n'est pas le roi        
                                     else:
+                                        #si on peut deplacer la piece -> pas de pat false
                                         if self.deplacementPiecePossible(case,c,echiquier):
                                             return False
-                                        
+            #si on ne peut plus bouger le roi sans qu'il se mette en danger
+            #donc s'il n'y a plus de deplacement possible alors pat -> true                            
             return True
+        #si le roi est en echec -> false
         return False
                         
         

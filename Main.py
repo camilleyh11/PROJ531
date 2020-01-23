@@ -13,7 +13,8 @@ def main():
     
     jeu.creationJeu()
        
-    # Infinite loop    
+    # Infinite loop
+    #tant qu'il n'y a pas de pat ou d'echec et mat la partie continue    
     while not jeu.moteurJeu.pat and not jeu.moteurJeu.echecEtMat(jeu):
         # Waits for an event
             
@@ -34,6 +35,7 @@ def main():
             
         elif event.type== pygame.MOUSEMOTION:
             jeu.mouseMotion(event.pos)
+    #on quitte pygame s'il y a pat ou echec et mat
     print('Fin du jeu')
     pygame.quit()
                 
