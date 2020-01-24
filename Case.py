@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import random
 class Case:
     
     
@@ -17,4 +17,8 @@ class Case:
         self.piece = piece
         
             
-     
+    def setPiecePromotion(self,echiquier,couleur):
+        liste=echiquier.getListePiecePromotion(couleur)
+        num=random.randint(0,3)
+        self.setPiece(liste[num])
+         

@@ -114,7 +114,7 @@ class Echiquier:
     def getCaseRoi(self,couleur):
         for ligne in self.jeu:
             for case in ligne:
-                if case.piece != None:                    
+                if case.piece != None:               
                     if case.piece.couleur==couleur and case.piece.nom=='Roi':
                         return case
                     
@@ -127,6 +127,27 @@ class Echiquier:
                         listePiece.append(case.piece)
         return listePiece
     
+    def getListePiecePromotion(self,couleur):
+        if couleur=='Blanc':
+            reineBlanc=Piece('Blanc','Reine',(1*self.caseLongueur,0*self.caseLargeur,
+                                    self.caseLongueur,self.caseLargeur))
+            fouBlanc=Piece('Blanc','Fou',(2*self.caseLongueur,0*self.caseLargeur,
+                                        self.caseLongueur,self.caseLargeur))
+            cavalierBlanc=Piece('Blanc','Cavalier',(3*self.caseLongueur,0*self.caseLargeur,
+                                        self.caseLongueur,self.caseLargeur))
+            tourBlanc=Piece('Blanc','Tour',(4*self.caseLongueur,0*self.caseLargeur,
+                                        self.caseLongueur,self.caseLargeur))
+            return[reineBlanc,fouBlanc,cavalierBlanc,tourBlanc]
+        else:
+            reineNoir=Piece('Noir','Reine',(1*self.caseLongueur,1*self.caseLargeur,
+                                    self.caseLongueur,self.caseLargeur))
+            fouNoir=Piece('Noir','Fou',(2*self.caseLongueur,1*self.caseLargeur,
+                                        self.caseLongueur,self.caseLargeur))
+            cavalierNoir=Piece('Noir','Cavalier',(3*self.caseLongueur,1*self.caseLargeur,
+                                        self.caseLongueur,self.caseLargeur))
+            tourNoir=Piece('Noir','Tour',(4*self.caseLongueur,1*self.caseLargeur,
+                                        self.caseLongueur,self.caseLargeur))
+            return [reineNoir,fouNoir,cavalierNoir,tourNoir]
 ###############################################################################
     '''INITIALISATION DU PLATEAU DE JEU'''
 ###############################################################################
@@ -277,7 +298,6 @@ class Echiquier:
         # efface l'ecran en noir pour ne pas voir les pieces qui sortent
         # du plateau de jeu
         pygame.draw.rect(self.screen,[20,20,20],[0,0,self.screen.get_width(),self.screen.get_height()],0)
-        pygame.draw.rect(self.screen,[253,108,158],[self.screen.get_width()//2-200,50,400,100],0)
                     
         # dessine l'echiquier
         for ligne in self.jeu:

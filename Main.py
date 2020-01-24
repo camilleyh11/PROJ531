@@ -9,34 +9,42 @@ import pygame
 from Echiquier import Echiquier
 
 def main():
-    jeu=Echiquier()  
     
-    jeu.creationJeu()
+    # On cree le jeu d'echec
+    echiquier=Echiquier()   
+    echiquier.creationJeu()
        
     # Infinite loop
     #tant qu'il n'y a pas de pat ou d'echec et mat la partie continue    
-    while not jeu.moteurJeu.pat and not jeu.moteurJeu.echecEtMat(jeu):
-        # Waits for an event
-            
+    while not echiquier.moteurJeu.pat and not echiquier.moteurJeu.echecEtMat(echiquier) and not echiquier.moteurJeu.coupAleatoire(echiquier):
+         
+        # on attend un evenement           
         event = pygame.event.wait()
  
+        #Si on clique sur la croix en haut à droite ou qu'on appuie sur echap on ferme le jeu
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key==pygame.K_ESCAPE):
             pygame.quit()
             break
         
         elif event.type == pygame.USEREVENT:
-            jeu.display()
-                                  
+            echiquier.display()
+                            
+        #Quand on appuie sur le clique gauche de la souris, la position est envoyee dans la classe echiquier
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            jeu.mouseButtonDown(event.pos)
+            echiquier.mouseButtonDown(event.pos)
 
         elif event.type== pygame.MOUSEBUTTONUP:
-            jeu.mouseButtonUp(event.pos)
+            echiquier.mouseButtonUp(event.pos)
             
         elif event.type== pygame.MOUSEMOTION:
-            jeu.mouseMotion(event.pos)
+            echiquier.mouseMotion(event.pos)
+            
     #on quitte pygame s'il y a pat ou echec et mat
-    print('Fin du jeu')
+    if echiquier.moteurJeu.echecPat(echiquier):
+        print("===============================\n \t PAT EGALITE \n===============================")
+    if echiquier.moteurJeu.echecEtMat(echiquier):
+        print("=============================== \n \t Les ",echiquier.moteurJeu.getJoueurAdverse().couleur," ont gagné ! \n ===============================")
+    print("===============================\n\tFin du jeu\n===============================")
     pygame.quit()
                 
 # Calls the main function
