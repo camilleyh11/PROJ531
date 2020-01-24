@@ -104,6 +104,7 @@ class Echiquier:
                     return case
         return None
     
+    #retourne la case de la piece passee en parametre
     def getCasePiece(self,piece):
         for ligne in self.jeu:
             for case in ligne:
@@ -111,6 +112,7 @@ class Echiquier:
                     return case
         return None
     
+    #retourne la case du roi
     def getCaseRoi(self,couleur):
         for ligne in self.jeu:
             for case in ligne:
@@ -118,6 +120,7 @@ class Echiquier:
                     if case.piece.couleur==couleur and case.piece.nom=='Roi':
                         return case
                     
+    #retourne la liste des pieces noires encore sur le plateau
     def getPieceNoir(self):
         listePiece=[]
         for ligne in self.jeu:
@@ -127,6 +130,9 @@ class Echiquier:
                         listePiece.append(case.piece)
         return listePiece
     
+    
+    #Retourne la liste des pieces qui peuvent remplacer un pion qui a une promotion
+    #n'est pas utilise pour l'instant
     def getListePiecePromotion(self,couleur):
         if couleur=='Blanc':
             reineBlanc=Piece('Blanc','Reine',(1*self.caseLongueur,0*self.caseLargeur,
@@ -148,6 +154,7 @@ class Echiquier:
             tourNoir=Piece('Noir','Tour',(4*self.caseLongueur,1*self.caseLargeur,
                                         self.caseLongueur,self.caseLargeur))
             return [reineNoir,fouNoir,cavalierNoir,tourNoir]
+        
 ###############################################################################
     '''INITIALISATION DU PLATEAU DE JEU'''
 ###############################################################################

@@ -32,10 +32,12 @@ def main():
         #Quand on appuie sur le clique gauche de la souris, la position est envoyee dans la classe echiquier
         elif event.type == pygame.MOUSEBUTTONDOWN:
             echiquier.mouseButtonDown(event.pos)
-
+            
+        #Quand on relache le clique gauche de la souris, la position est envoyee dans la classe echiquier
         elif event.type== pygame.MOUSEBUTTONUP:
             echiquier.mouseButtonUp(event.pos)
             
+        #Quand on deplace la souris en restant appuiye sur le clique gauche de la souris, la position est envoyee dans la classe echiquier
         elif event.type== pygame.MOUSEMOTION:
             echiquier.mouseMotion(event.pos)
             

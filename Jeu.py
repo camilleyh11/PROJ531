@@ -806,6 +806,8 @@ class Jeu:
             for ligne in echiquier.jeu:
                 for case in ligne:
                     if case.piece!=None:
+                        # Des que l'on trouve une piece de celui qui doit jouer
+                        # on parcourt de nouveau toutes les case de l'echiquier
                         if case.piece.couleur==joueur.couleur:
                             for l in echiquier.jeu:
                                 for c in l:

@@ -17,6 +17,8 @@ class Case:
         self.piece = piece
         
             
+    # permet de changer aléatoirement le pion arrive au bout du plateau en une autre piece
+    # n'est pas utilise pour le moment
     def setPiecePromotion(self,echiquier,couleur):
         liste=echiquier.getListePiecePromotion(couleur)
         num=random.randint(0,3)
